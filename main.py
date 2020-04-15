@@ -4,7 +4,7 @@ import statistics
 from pydub import AudioSegment
 from pydub.silence import detect_nonsilent
 
-POLLING_INTERVAL = 10
+POLLING_INTERVAL = 20
 
 
 class Song:
@@ -44,11 +44,14 @@ def segments(audio, interval):
 
 def peaks(segments, loudness):
     result = []
+    last_peak = 0
     for i in range(1, len(segments)-1):
         cur, prv, nxt = segments[i], segments[i-1], segments[i+1]
+        delta = cur.time - last_peak
         if cur.amplitude > prv.amplitude and cur.amplitude > nxt.amplitude:
-            if cur.amplitude >= loudness + (loudness / 1.5):
+            if cur.amplitude >= loudness + (loudness / 2) and delta >= 100:
                 result.append(cur)
+                last_peak = cur.time
     return result
 
 
@@ -65,6 +68,7 @@ if __name__ == '__main__':
     audio = AudioSegment.from_mp3(filename)
     song = Song(filename.split('.')[0], audio[0:20000])
 
+    print('\n'.join([str(s) for s in song.segments]))
     changes = sorted(change([p.time for p in song.peaks]))
     print(changes)
     median = changes[len(changes) // 2]
