@@ -1,3 +1,4 @@
+import sys
 import math
 import statistics
 from pydub import AudioSegment
@@ -59,15 +60,16 @@ def change(arr):
     return [arr[i] - arr[i-1] for i in range(1, len(arr))]
 
 
+if __name__ == '__main__':
+    filename = sys.argv[1]
+    audio = AudioSegment.from_mp3(filename)
+    song = Song(filename.split('.')[0], audio[0:20000])
 
-audio = AudioSegment.from_mp3('BREAK IT.mp3')
-song = Song('BREAK IT', audio[0:20000])
+    changes = sorted(change([p.time for p in song.peaks]))
+    print(changes)
+    median = changes[len(changes) // 2]
+    print(60000 / median)
+    print(len(song.peaks))
+    print(song.loudness)
 
-changes = sorted(change([p.time for p in song.peaks]))
-print(changes)
-median = changes[len(changes) // 2]
-print(60000 / median)
-print(len(song.peaks))
-print(song.loudness)
-
-song.splice().export('test.wav', format='wav')
+    song.splice().export('output.wav', format='wav')
