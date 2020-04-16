@@ -7,7 +7,7 @@ from enum import Enum
 from pydub import AudioSegment
 from pydub.silence import detect_nonsilent
 
-POLLING_INTERVAL = 20
+POLLING_INTERVAL = 10
 
 
 class Song:
@@ -44,6 +44,7 @@ class Song:
         return time / beat_time
 
     def export(self):
+        # TODO: Unique output directory for each song.
         if not os.path.exists('output'):
             os.mkdir('output')
         with open('./output/info.dat', 'w') as fr:
@@ -181,6 +182,7 @@ def peaks(segments, loudness):
         cur, prv, nxt = segments[i], segments[i-1], segments[i+1]
         delta = cur.time - last_peak
         if cur.amplitude > prv.amplitude and cur.amplitude > nxt.amplitude:
+            # TODO: Weave merge close notes.
             if cur.amplitude >= loudness + (loudness / 2) and delta >= 100:
                 result.append(cur)
                 last_peak = cur.time
@@ -198,7 +200,7 @@ def change(arr):
 if __name__ == '__main__':
     filename = sys.argv[1]
     audio = AudioSegment.from_mp3(filename)
-    song = Song(filename.split('.')[0], audio[0:20000])
+    song = Song(filename.split('.')[0], audio)
 
     '''
     print('\n'.join([str(s) for s in song.segments]))
