@@ -1,6 +1,7 @@
 import sys
 import math
 import statistics
+from enum import Enum
 from pydub import AudioSegment
 from pydub.silence import detect_nonsilent
 
@@ -15,6 +16,7 @@ class Song:
         self.loudness = abs(self.low_pass.dBFS)
         self.segments = segments(self.low_pass, POLLING_INTERVAL)
         self.peaks = peaks(self.segments, self.loudness)
+        self.bpm = self._calculate_bpm()
 
     def splice(self):
         result = self.audio[0:1]
@@ -22,6 +24,60 @@ class Song:
             result += self.audio[s.time-50:s.time+50]
         return result
 
+    def chart(self):
+        pass
+
+    def adjusted_time(self, time):
+        beat_time = (1 / self.bpm) * 60 * 1000
+        return time / beat_time
+
+
+    def _calculate_bpm(self):
+        changes = sorted(change([peak.time for peak in self.peaks]))
+        median = changes[len(changes) // 2]
+        bpm = (60 * 1000) / median
+        # A wacky BPM calculate shouldn't really matter to us, I think...
+        if bpm > 200:
+            return 200
+        if bpm < 50:
+            return 50
+        return bpm
+
+
+
+
+'''
+Data file format:
+
+notes - array of notes
+type - color of note (0, 1) or bomb (3)
+lineIndex - column
+lineLayer - row
+cutDirection - direction of note (0-7) or dot (8)
+'''
+class NoteType(Enum):
+    red = 0
+    blue = 1
+    bomb = 3
+
+class CutDirection(Enum):
+    up = 0
+    up_right = 1
+    right = 2
+    down_right = 3
+    down = 4
+    down_left = 5
+    left = 6
+    up_left = 7
+    none = 8
+
+
+class Note:
+    def __init__(self, note_type, time, row, column, direction):
+        self.type = note_type
+        self.time = time
+        self.row, self.column = row, column
+        self.direction = direction
 
 
 class Segment:
@@ -69,11 +125,7 @@ if __name__ == '__main__':
     song = Song(filename.split('.')[0], audio[0:20000])
 
     print('\n'.join([str(s) for s in song.segments]))
-    changes = sorted(change([p.time for p in song.peaks]))
-    print(changes)
-    median = changes[len(changes) // 2]
-    print(60000 / median)
-    print(len(song.peaks))
+    print(f'bpm={song.bpm}')
     print(song.loudness)
 
     song.splice().export('output.wav', format='wav')
