@@ -1,5 +1,7 @@
+import os
 import sys
 import math
+import json
 import statistics
 from enum import Enum
 from pydub import AudioSegment
@@ -17,6 +19,7 @@ class Song:
         self.segments = segments(self.low_pass, POLLING_INTERVAL)
         self.peaks = peaks(self.segments, self.loudness)
         self.bpm = self._calculate_bpm()
+        self.chart = self.create_level()
 
     def splice(self):
         result = self.audio[0:1]
@@ -24,15 +27,38 @@ class Song:
             result += self.audio[s.time-50:s.time+50]
         return result
 
-    def chart(self):
-        pass
+    def create_level(self):
+        level = []
+        for peak in self.peaks:
+            note = Note(
+                NoteType.blue,
+                self.adjusted_time(peak.time),
+                0, 0,
+                CutDirection.none
+            )
+            level.append(note)
+        return level
 
     def adjusted_time(self, time):
         beat_time = (1 / self.bpm) * 60 * 1000
         return time / beat_time
 
+    def export(self):
+        if not os.path.exists('output'):
+            os.mkdir('output')
+        with open('./output/info.data', 'w') as fr:
+            fr.write(json.dumps(self.metadata_json()))
+            fr.close()
+        with open('./output/AI.dat', 'w') as fr:
+            fr.write(json.dumps(self.level_json()))
+            fr.close()
+
     def level_json(self):
-        pass
+        return {
+            '_events': [], # Cool light stuff goes here but is not a priority.
+            '_notes': [note.json() for note in self.chart],
+            '_obstacles': [] # We won't worry about walls for now.
+        }
 
     def metadata_json(self):
         return {
@@ -171,3 +197,5 @@ if __name__ == '__main__':
     print(song.loudness)
 
     song.splice().export('output.wav', format='wav')
+
+# Shoutout to Daniwell
