@@ -52,6 +52,7 @@ class Song:
         with open('./output/AI.dat', 'w') as fr:
             fr.write(json.dumps(self.level_json()))
             fr.close()
+        self.audio.export(f'./output/{self.name}.ogg', format='ogg')
 
     def level_json(self):
         return {
@@ -192,9 +193,11 @@ if __name__ == '__main__':
     audio = AudioSegment.from_mp3(filename)
     song = Song(filename.split('.')[0], audio[0:20000])
 
+    '''
     print('\n'.join([str(s) for s in song.segments]))
     print(f'bpm={song.bpm}')
     print(song.loudness)
+    ''''
 
     song.splice().export('output.wav', format='wav')
 
