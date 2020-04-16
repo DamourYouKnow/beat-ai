@@ -31,6 +31,39 @@ class Song:
         beat_time = (1 / self.bpm) * 60 * 1000
         return time / beat_time
 
+    def level_json(self):
+        pass
+
+    def metadata_json(self):
+        return {
+            '_version': '2.0.0',
+            '_songName': self.name,
+            '_songSubName': 'TODO',
+            '_songAuthorName': 'TODO',
+            '_levelAuthorName': 'Beat A.I.',
+            '_beatsPerMinute': self.bpm,
+            '_shuffle': 0,
+            '_shufflePeriod': 0.5, # WTF is this?
+            '_previewStartTime': 0,
+            '_previewDuration': 15,
+            '_songFilename': f'{self.name}.ogg',
+            '_environmentNane': 'BigMirrorEnvironment',
+            '_songTimeOffset': 0,
+            '_difficultyBeatmapSets': [
+                {
+                    '_beatmapCharacteristicName': 'Standard',
+                    '_difficultyBeatmaps': [
+                        {
+                            '_difficulty': 'AI',
+                            '_difficultyRank': 7,
+                            '_beatmapFilename': 'AI.dat',
+                            '_noteJumpMovementSpeed': 12,
+                            '_noteJumpStartBeatOffset': 0
+                        }
+                    ]
+                }
+            ]
+        }   
 
     def _calculate_bpm(self):
         changes = sorted(change([peak.time for peak in self.peaks]))
@@ -78,6 +111,15 @@ class Note:
         self.time = time
         self.row, self.column = row, column
         self.direction = direction
+
+    def json(self):
+        return {
+            '_time': self.time,
+            '_lineIndex': self.column,
+            '_lineLayer': self.row,
+            '_type': self.type,
+            '_cutDirection': self.direction
+        }
 
 
 class Segment:
