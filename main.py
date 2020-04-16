@@ -46,7 +46,7 @@ class Song:
     def export(self):
         if not os.path.exists('output'):
             os.mkdir('output')
-        with open('./output/info.data', 'w') as fr:
+        with open('./output/info.dat', 'w') as fr:
             fr.write(json.dumps(self.metadata_json()))
             fr.close()
         with open('./output/AI.dat', 'w') as fr:
@@ -120,6 +120,10 @@ class NoteType(Enum):
     blue = 1
     bomb = 3
 
+    def __int__(self):
+        return self.value
+
+
 class CutDirection(Enum):
     up = 0
     up_right = 1
@@ -130,6 +134,9 @@ class CutDirection(Enum):
     left = 6
     up_left = 7
     none = 8
+
+    def __int__(self):
+        return self.value
 
 
 class Note:
@@ -144,8 +151,8 @@ class Note:
             '_time': self.time,
             '_lineIndex': self.column,
             '_lineLayer': self.row,
-            '_type': self.type,
-            '_cutDirection': self.direction
+            '_type': int(self.type),
+            '_cutDirection': int(self.direction)
         }
 
 
@@ -199,6 +206,6 @@ if __name__ == '__main__':
     print(song.loudness)
     '''
 
-    song.splice().export('output.wav', format='wav')
+    song.export()
 
 # Shoutout to Daniwell
