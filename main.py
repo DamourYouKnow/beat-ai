@@ -3,6 +3,7 @@ import sys
 import math
 import json
 import statistics
+from shutil import rmtree
 from enum import Enum
 from pydub import AudioSegment
 from pydub.silence import detect_nonsilent
@@ -44,16 +45,20 @@ class Song:
         return time / beat_time
 
     def export(self):
-        # TODO: Unique output directory for each song.
-        if not os.path.exists('output'):
-            os.mkdir('output')
-        with open('./output/info.dat', 'w') as fr:
+        outdir, songdir = './output', f'./output/{self.name}'
+        infopath, datapath = f'{songdir}/info.dat', f'{songdir}/AI.dat'
+        if not os.path.exists(outdir):
+            os.mkdir(outdir)
+        if os.path.exists(songdir):
+            rmtree(songdir)
+        os.mkdir(songdir)
+        with open(infopath, 'w') as fr:
             fr.write(json.dumps(self.metadata_json()))
             fr.close()
-        with open('./output/AI.dat', 'w') as fr:
+        with open(datapath, 'w') as fr:
             fr.write(json.dumps(self.level_json()))
             fr.close()
-        self.audio.export(f'./output/{self.name}.ogg', format='ogg')
+        self.audio.export(f'{songdir}/{self.name}.ogg', format='ogg')
 
     def level_json(self):
         return {
@@ -181,6 +186,7 @@ def peaks(segments, loudness):
     for i in range(1, len(segments)-1):
         cur, prv, nxt = segments[i], segments[i-1], segments[i+1]
         delta = cur.time - last_peak
+        # TODO: Extend comparison range.
         if cur.amplitude > prv.amplitude and cur.amplitude > nxt.amplitude:
             # TODO: Weave merge close notes.
             if cur.amplitude >= loudness + (loudness / 2) and delta >= 100:
@@ -200,7 +206,8 @@ def change(arr):
 if __name__ == '__main__':
     filename = sys.argv[1]
     audio = AudioSegment.from_mp3(filename)
-    song = Song(filename.split('.')[0], audio)
+    song = Song(os.path.basename(filename).split('.')[0], audio)
+    song.export()
 
     '''
     print('\n'.join([str(s) for s in song.segments]))
