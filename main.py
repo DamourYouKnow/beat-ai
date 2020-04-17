@@ -2,6 +2,7 @@ import os
 import sys
 import math
 import json
+import random
 import statistics
 from shutil import rmtree
 from enum import Enum
@@ -32,10 +33,10 @@ class Song:
         level = []
         for peak in self.peaks:
             note = Note(
-                NoteType.blue,
+                random.choice([NoteType.blue, NoteType.red]),
                 self.adjusted_time(peak.time),
-                0, 0,
-                CutDirection.none
+                random.randint(0, 2), random.randint(0, 2),
+                random.randint(0, 8)
             )
             level.append(note)
         return level
