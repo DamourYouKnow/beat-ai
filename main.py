@@ -10,6 +10,7 @@ from pydub import AudioSegment
 from pydub.silence import detect_nonsilent
 
 POLLING_INTERVAL = 10
+LENIENCY = 10
 
 
 class Song:
@@ -19,7 +20,7 @@ class Song:
         self.low_pass = self.audio.low_pass_filter(120.0)
         self.loudness = abs(self.low_pass.dBFS)
         self.segments = segments(self.low_pass, POLLING_INTERVAL)
-        self.peaks = peaks(self.segments, self.loudness)
+        self.peaks = peaks(self.low_pass, self.segments)
         self.bpm = self._calculate_bpm()
         self.chart = self.create_level()
 
@@ -181,18 +182,24 @@ def segments(audio, interval):
     ]
 
 
-def peaks(segments, loudness):
+def peaks(audio, segments):
     result = []
     last_peak = 0
     for i in range(1, len(segments)-1):
         cur, prv, nxt = segments[i], segments[i-1], segments[i+1]
         delta = cur.time - last_peak
-        # TODO: Extend comparison range.
-        if cur.amplitude > prv.amplitude and cur.amplitude > nxt.amplitude:
+        left = [s for s in segments[i-LENIENCY:i]]
+        right = [s for s in segments[i+1:i+LENIENCY+1]]
+        left_good = all(left, lambda s: cur.amplitude > s.amplitude)
+        right_good = all(right, lambda s: cur.amplitude > s.amplitude)
+        if left_good and right_good:
+            time = cur.time
+            loudness = abs(audio[time-5000:time+5000].dBFS)
             # TODO: Weave merge close notes.
-            if cur.amplitude >= loudness + (loudness / 2) and delta >= 100:
-                result.append(cur)
-                last_peak = cur.time
+            if all(left+right+[cur], lambda s: s.amplitude > loudness * 0.6):
+                if delta >= 100:
+                    result.append(cur)
+                    last_peak = cur.time
     return result
 
 
@@ -203,11 +210,17 @@ def chunks(arr, size):
 def change(arr):
     return [arr[i] - arr[i-1] for i in range(1, len(arr))]
 
+def all(arr, predicate):
+    for x in arr:
+        if not predicate(x):
+            return False
+    return True
+
 
 if __name__ == '__main__':
     filename = sys.argv[1]
     audio = AudioSegment.from_mp3(filename)
-    song = Song(os.path.basename(filename).split('.')[0], audio)
+    song = Song(os.path.basename(filename).split('.')[0], audio[0:30000])
     song.export()
 
     '''
