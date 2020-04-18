@@ -36,7 +36,7 @@ class Song:
                 random.choice([NoteType.blue, NoteType.red]),
                 self.adjusted_time(peak.time),
                 1, 1,
-                0
+                6
             )
             level.append(note)
         return level
@@ -133,13 +133,13 @@ class NoteType(Enum):
 
 class CutDirection(Enum):
     up = 0
-    up_right = 1
-    right = 2
-    down_right = 3
-    down = 4
-    down_left = 5
-    left = 6
-    up_left = 7
+    up_right = 5
+    right = 3
+    down_right = 7
+    down = 1
+    down_left = 6
+    left = 2
+    up_left = 4
     none = 8
 
     def __int__(self):
