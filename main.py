@@ -7,10 +7,9 @@ import statistics
 from shutil import rmtree
 from enum import Enum
 from pydub import AudioSegment
-from pydub.silence import detect_nonsilent
 
 POLLING_INTERVAL = 10
-LENIENCY = 10
+LENIENCY = 6
 
 
 class Song:
@@ -36,8 +35,8 @@ class Song:
             note = Note(
                 random.choice([NoteType.blue, NoteType.red]),
                 self.adjusted_time(peak.time),
-                random.randint(0, 2), random.randint(0, 2),
-                random.randint(0, 8)
+                1, 1,
+                0
             )
             level.append(note)
         return level
@@ -190,16 +189,31 @@ def peaks(audio, segments):
         delta = cur.time - last_peak
         left = [s for s in segments[i-LENIENCY:i]]
         right = [s for s in segments[i+1:i+LENIENCY+1]]
-        left_good = all(left, lambda s: cur.amplitude > s.amplitude)
-        right_good = all(right, lambda s: cur.amplitude > s.amplitude)
-        if left_good and right_good:
-            time = cur.time
-            loudness = abs(audio[time-5000:time+5000].dBFS)
-            # TODO: Weave merge close notes.
-            if all(left+right+[cur], lambda s: s.amplitude > loudness * 0.6):
-                if delta >= 100:
-                    result.append(cur)
-                    last_peak = cur.time
+        sides = left + right
+
+        # Check if segment louder than all adjacent segments. 
+        if not all(sides, lambda s: cur.amplitude > s.amplitude):
+            continue
+
+        # Check if there is distinction between current segment and adjacent
+        # segments.
+        distinct = lambda s: s.amplitude < cur.amplitude * 0.8
+        if not count(sides, distinct) >= 2:
+            continue 
+
+        # Check if all near segments are above loudness threshold for the frame.
+        loudness = abs(audio[cur.time-5000:cur.time+5000].dBFS)       
+        if not all(sides, lambda s: s.amplitude > loudness * 0.5):
+            continue
+        
+        # Sanity check for placing notes too close to each other.
+        if not delta >= 100:
+            continue
+
+        result.append(cur)
+        last_peak = cur.time
+
+    # TODO: Weave merge close notes.
     return result
 
 
@@ -210,11 +224,16 @@ def chunks(arr, size):
 def change(arr):
     return [arr[i] - arr[i-1] for i in range(1, len(arr))]
 
+
 def all(arr, predicate):
     for x in arr:
         if not predicate(x):
             return False
     return True
+
+
+def count(arr, predicate):
+    return sum(predicate(x) for x in arr)
 
 
 if __name__ == '__main__':
