@@ -90,6 +90,76 @@ class Song:
             ]
         }
 
+        patterns = [
+            # Dance notes
+            [
+                [
+                    Note(NoteType.red, 0.0, 1, 0, CutDirection.down),
+                    Note(NoteType.blue, 0.0, 1, 3, CutDirection.up)
+                ],
+                [
+                    Note(NoteType.red, 1.0, 1, 0, CutDirection.up),
+                    Note(NoteType.blue, 1.0, 1, 3, CutDirection.down)
+                ]
+            ],
+            # Cross
+            [
+                [
+                    Note(NoteType.red, 0.0, 0, 3, CutDirection.right),
+                    Note(NoteType.blue, 0.0, 1, 0, CutDirection.left)
+                ],
+                [
+                    Note(NoteType.red, 1.0, 0, 0, CutDirection.left),
+                    Note(NoteType.blue, 1.0, 1, 3, CutDirection.right)
+                ]
+            ],
+            # Drum roll
+            [
+                [
+                    Note(NoteType.red, 0.0, 0, 1, CutDirection.down)
+                ],
+                [
+                    Note(NoteType.blue, 0.25, 0, 2, CutDirection.up)
+                ],
+                [
+                    Note(NoteType.red, 0.50, 0, 1, CutDirection.up)
+                ],
+                [
+                    Note(NoteType.blue, 0.75, 0, 2, CutDirection.down)
+                ]
+            ],
+            # Roller left to right
+            [
+                [
+                    Note(NoteType.red, 0.0, 0, 0, CutDirection.down),
+                ],
+                [
+                    Note(NoteType.blue, 0.25, 0, 1, CutDirection.up),
+                ],
+                [
+                    Note(NoteType.red, 0.50, 0, 2, CutDirection.up),
+                ],
+                [
+                    Note(NoteType.blue, 0.75, 0, 3, CutDirection.down),
+                ]
+            ],
+            # Roller right to left
+            [
+                [
+                    Note(NoteType.blue, 0.0, 0, 3, CutDirection.down),
+                ],
+                [
+                    Note(NoteType.red, 0.25, 0, 2, CutDirection.up),
+                ],
+                [
+                    Note(NoteType.blue, 0.50, 0, 1, CutDirection.up),
+                ],
+                [
+                    Note(NoteType.red, 0.75, 0, 0, CutDirection.down),
+                ]
+            ],
+        ]
+
 
         level = []
         for peak in self.peaks:
@@ -213,6 +283,7 @@ class Note:
         self.time = time
         self.row, self.column = row, column
         self.direction = direction
+        self.classified = False
 
     def json(self):
         return {
