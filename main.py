@@ -90,6 +90,8 @@ class Song:
             ]
         }
 
+        # Function inputs note, delta, outputs valid notes
+
         patterns = [
             # Dance notes
             [
@@ -119,13 +121,13 @@ class Song:
                     Note(NoteType.red, 0.0, 0, 1, CutDirection.down)
                 ],
                 [
-                    Note(NoteType.blue, 0.25, 0, 2, CutDirection.up)
+                    Note(NoteType.blue, 0.25, 0, 2, CutDirection.none)
                 ],
                 [
-                    Note(NoteType.red, 0.50, 0, 1, CutDirection.up)
+                    Note(NoteType.red, 0.50, 0, 1, CutDirection.none)
                 ],
                 [
-                    Note(NoteType.blue, 0.75, 0, 2, CutDirection.down)
+                    Note(NoteType.blue, 0.75, 0, 2, CutDirection.none)
                 ]
             ],
             # Roller left to right
@@ -162,14 +164,22 @@ class Song:
 
 
         level = []
-        for peak in self.peaks:
-            note = Note(
-                random.choice([NoteType.blue, NoteType.red]),
-                self.adjusted_time(peak.time),
-                1, 1,
-                6
-            )
+        for i in range(len(self.peaks)):
+            peak = self.peaks[i]
+
+            row, col = random.randint(0, 2), random.randint(0, 3)
+            time = self.adjusted_time(peak.time)
+            note_type = random.choice([NoteType.blue, NoteType.red])
+            direction = CutDirection(random.randint(0, 7))
+            if i-1 >= 0:
+                last_note = level[len(level)-1]
+                direction = random.choice(
+                    direction_transitions[last_note.direction]
+                )
+
+            note = Note(note_type, time, row, col, direction)
             level.append(note)
+
         return level
 
     def adjusted_time(self, time):
