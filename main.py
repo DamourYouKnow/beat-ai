@@ -30,6 +30,67 @@ class Song:
         return result
 
     def create_level(self):
+        # [Easy, Medium, Medium, Hard, Hard]
+        direction_transitions = {
+            CutDirection.up: [
+                CutDirection.down,
+                CutDirection.down_left,
+                CutDirection.down_right,
+                CutDirection.left,
+                CutDirection.right
+            ],
+            CutDirection.down: [
+                CutDirection.up,
+                CutDirection.up_left,
+                CutDirection.up_right,
+                CutDirection.left,
+                CutDirection.right
+            ],
+            CutDirection.left: [
+                CutDirection.right,
+                CutDirection.up_right,
+                CutDirection.down_right,
+                CutDirection.up,
+                CutDirection.down
+            ],
+            CutDirection.right: [
+                CutDirection.left,
+                CutDirection.up_left,
+                CutDirection.down_left,
+                CutDirection.up,
+                CutDirection.down
+            ],
+            CutDirection.up_right: [
+                CutDirection.down_left,
+                CutDirection.left,
+                CutDirection.down,
+                CutDirection.up_left,
+                CutDirection.down_right
+            ],
+            CutDirection.up_left: [
+                CutDirection.down_right,
+                CutDirection.right,
+                CutDirection.down,
+                CutDirection.down_left,
+                CutDirection.up_right
+            ],
+            CutDirection.down_right: [
+                CutDirection.up_left,
+                CutDirection.up,
+                CutDirection.left,
+                CutDirection.up_right,
+                CutDirection.down_left
+            ],
+            CutDirection.down_left: [
+                CutDirection.up_right,
+                CutDirection.up,
+                CutDirection.right,
+                CutDirection.up_left,
+                CutDirection.down_right
+            ]
+        }
+
+
         level = []
         for peak in self.peaks:
             note = Note(
@@ -197,12 +258,12 @@ def peaks(audio, segments):
 
         # Check if there is distinction between current segment and adjacent
         # segments.
-        distinct = lambda s: s.amplitude < cur.amplitude * 0.8
-        if not count(sides, distinct) >= 2:
+        distinct = lambda s: s.amplitude < cur.amplitude * 0.75
+        if not (count(left, distinct) >= 1 and count(right, distinct) >= 1):
             continue 
 
         # Check if all near segments are above loudness threshold for the frame.
-        loudness = abs(audio[cur.time-5000:cur.time+5000].dBFS)       
+        loudness = abs(audio[cur.time:cur.time+10000].dBFS)       
         if not all(sides, lambda s: s.amplitude > loudness * 0.5):
             continue
         
