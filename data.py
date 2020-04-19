@@ -143,12 +143,12 @@ patterns = {
         [[0.0, 1.0], [0.0, 0.5]], 
         [
             [
-                PNote(NoteType.red, 1, 0, CutDirection.down),
-                PNote(NoteType.blue, 2, 2, CutDirection.up)
+                PNote(NoteType.red, 0, 0, CutDirection.down),
+                PNote(NoteType.blue, 1, 2, CutDirection.up)
             ],
             [
-                PNote(NoteType.red, 2, 0, CutDirection.up),
-                PNote(NoteType.blue, 1, 2, CutDirection.down)
+                PNote(NoteType.red, 1, 0, CutDirection.up),
+                PNote(NoteType.blue, 0, 2, CutDirection.down)
             ]
         ]
     ),
@@ -156,12 +156,12 @@ patterns = {
         [[0.0, 1.0]],
         [
             [
-                PNote(NoteType.red, 1, 2, CutDirection.right),
-                PNote(NoteType.blue, 2, 0, CutDirection.left)
+                PNote(NoteType.red, 0, 2, CutDirection.right),
+                PNote(NoteType.blue, 1, 0, CutDirection.left)
             ],
             [
-                PNote(NoteType.red, 1, 0, CutDirection.left),
-                PNote(NoteType.blue, 2, 2, CutDirection.right)
+                PNote(NoteType.red, 0, 0, CutDirection.left),
+                PNote(NoteType.blue, 1, 2, CutDirection.right)
             ]
         ]
     ),
@@ -169,16 +169,16 @@ patterns = {
         [[0.0, 0.25, 0.50, 0.75]],
         [
             [
-                PNote(NoteType.red, 1, 1, CutDirection.down)
+                PNote(NoteType.red, 0, 1, CutDirection.down)
             ],
             [
-                PNote(NoteType.blue, 1, 2, CutDirection.none)
+                PNote(NoteType.blue, 0, 2, CutDirection.none)
             ],
             [
-                PNote(NoteType.red, 1, 1, CutDirection.none)
+                PNote(NoteType.red, 0, 1, CutDirection.none)
             ],
             [
-                PNote(NoteType.blue, 1, 2, CutDirection.none)
+                PNote(NoteType.blue, 0, 2, CutDirection.none)
             ]
         ]
     ),
@@ -186,16 +186,16 @@ patterns = {
         [[0.0, 0.25, 0.50, 0.75]],
         [
             [
-                PNote(NoteType.red, 1, 0, CutDirection.down),
+                PNote(NoteType.red, 0, 0, CutDirection.down),
             ],
             [
-                PNote(NoteType.blue, 1, 1, CutDirection.up),
+                PNote(NoteType.blue, 0, 1, CutDirection.up),
             ],
             [
-                PNote(NoteType.red, 1, 2, CutDirection.up),
+                PNote(NoteType.red, 0, 2, CutDirection.up),
             ],
             [
-                PNote(NoteType.blue, 1, 3, CutDirection.down),
+                PNote(NoteType.blue, 0, 3, CutDirection.down),
             ]
         ]
     ),
@@ -203,16 +203,16 @@ patterns = {
         [[0.0, 0.25, 0.50, 0.75]],
         [
             [
-                PNote(NoteType.blue, 1, 3, CutDirection.down),
+                PNote(NoteType.blue, 0, 3, CutDirection.down),
             ],
             [
-                PNote(NoteType.red, 1, 2, CutDirection.up),
+                PNote(NoteType.red, 0, 2, CutDirection.up),
             ],
             [
-                PNote(NoteType.blue, 1, 1, CutDirection.up),
+                PNote(NoteType.blue, 0, 1, CutDirection.up),
             ],
             [
-                PNote(NoteType.red, 1, 0, CutDirection.down),
+                PNote(NoteType.red, 0, 0, CutDirection.down),
             ]
         ]
     ),
@@ -220,16 +220,16 @@ patterns = {
         [[0.0, 1.0, 2.0, 3.0], [0.0, 0.5, 1.0, 1.5]],
         [
             [
-                PNote(NoteType.red, 1, 0, CutDirection.down),
+                PNote(NoteType.red, 0, 0, CutDirection.down),
             ],
             [
-                PNote(NoteType.red, 1, 0, CutDirection.down),
+                PNote(NoteType.red, 0, 0, CutDirection.down),
             ],
             [
-                PNote(NoteType.red, 1, 0, CutDirection.down),
+                PNote(NoteType.red, 0, 0, CutDirection.down),
             ],
             [
-                PNote(NoteType.red, 1, 0, CutDirection.down),
+                PNote(NoteType.red, 0, 0, CutDirection.down),
             ]
         ]
     ),
@@ -237,16 +237,16 @@ patterns = {
         [[0.0, 1.0, 2.0, 3.0], [0.0, 0.5, 1.0, 1.5]],
         [
             [
-                PNote(NoteType.blue, 1, 3, CutDirection.down),
+                PNote(NoteType.blue, 0, 3, CutDirection.down),
             ],
             [
-                PNote(NoteType.blue, 1, 3, CutDirection.down),
+                PNote(NoteType.blue, 0, 3, CutDirection.down),
             ],
             [
-                PNote(NoteType.blue, 1, 3, CutDirection.down),
+                PNote(NoteType.blue, 0, 3, CutDirection.down),
             ],
             [
-                PNote(NoteType.blue, 1, 3, CutDirection.down),
+                PNote(NoteType.blue, 0, 3, CutDirection.down),
             ]
         ]
     ),
@@ -254,10 +254,10 @@ patterns = {
         [[0.0, 1.0], [0.0, 0.5]],
         [
             [
-                PNote(NoteType.red, 1, 0, CutDirection.down),
+                PNote(NoteType.red, 0, 0, CutDirection.down),
             ],
             [
-                PNote(NoteType.red, 1, 0, CutDirection.down),
+                PNote(NoteType.red, 0, 0, CutDirection.down),
             ]
         ]
     ),
@@ -265,10 +265,10 @@ patterns = {
         [[0.0, 1.0], [0.0, 0.5]],
         [
             [
-                PNote(NoteType.blue, 1, 3, CutDirection.down),
+                PNote(NoteType.blue, 0, 3, CutDirection.down),
             ],
             [
-                PNote(NoteType.blue, 1, 3, CutDirection.down),
+                PNote(NoteType.blue, 0, 3, CutDirection.down),
             ],
         ]
     )

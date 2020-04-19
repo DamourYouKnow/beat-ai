@@ -113,7 +113,7 @@ class Song:
         return time / beat_time
 
     def export(self):
-        outdir, songdir = './output', f'./output/{self.name}'
+        outdir, songdir = './output', f'./output/ai_{self.name}'
         infopath, datapath = f'{songdir}/info.dat', f'{songdir}/Expert.dat'
         if not os.path.exists(outdir):
             os.mkdir(outdir)
@@ -126,7 +126,7 @@ class Song:
         with open(datapath, 'w') as fr:
             fr.write(json.dumps(self.level_json()))
             fr.close()
-        self.audio.export(f'{songdir}/{self.name}.ogg', format='ogg')
+        self.audio.export(f'{songdir}/ai_{self.name}.ogg', format='ogg')
 
     def level_json(self):
         return {
@@ -138,7 +138,7 @@ class Song:
     def metadata_json(self):
         return {
             '_version': '2.0.0',
-            '_songName': self.name,
+            '_songName': f'ai_{self.name}',
             '_songSubName': 'TODO',
             '_songAuthorName': 'TODO',
             '_levelAuthorName': 'Beat A.I.',
@@ -147,7 +147,7 @@ class Song:
             '_shufflePeriod': 0.5, # WTF is this?
             '_previewStartTime': 0,
             '_previewDuration': 15,
-            '_songFilename': f'{self.name}.ogg',
+            '_songFilename': f'ai_{self.name}.ogg',
             '_environmentNane': 'BigMirrorEnvironment',
             '_songTimeOffset': 0,
             '_difficultyBeatmapSets': [
