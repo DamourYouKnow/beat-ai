@@ -3,11 +3,11 @@ import math
 import json
 import random
 from shutil import rmtree
-from data import Note, NoteType, CutDirection, directions
+from data import Note, NoteType, CutDirection, directions, patterns
 
 
 POLLING_INTERVAL = 10
-LENIENCY = 6
+LENIENCY = 8
 
 
 class Segment:
@@ -38,30 +38,76 @@ class Song:
 
     def create_level(self):
         random.seed(1)
-
-        # Function inputs note, delta, outputs valid notes
-
-        
-
+        max_pattern_length = max(len(p.timings) for p in patterns.values())
 
         level = []
-        for i in range(len(self.peaks)):
+        i = 0
+        last_note = None
+        while i < len(self.peaks):
+            options = []
+            nxt = []
             peak = self.peaks[i]
 
-            row, col = random.randint(0, 2), random.randint(0, 3)
-            time = self.adjusted_time(peak.time)
-            note_type = random.choice([NoteType.blue, NoteType.red])
-            direction = CutDirection(random.randint(0, 7))
-            if i-1 >= 0:
-                last_note = level[len(level)-1]
-                direction = random.choice(
-                    directions[last_note.direction]
-                )
+            # Try to find pattern.
+            for length in range(1, max_pattern_length + 1):
+                # Make sure we don't go out of bounds.
+                if i + length >= len(self.peaks):
+                    continue
+    
+                matching = [
+                    p for p in patterns.values() if len(p.timings[0]) == length
+                ]
+                for match in matching:
+                    times = [p.time for p in self.peaks[i:i+length]]
+                    r = [0.0] + [get_range(t) for t in change(times)]
+                    ranges = [sum(r[:k]) + r[k] for k in range(len(r))]
 
-            note = Note(note_type, time, row, col, direction)
-            note.raw_time = peak.time
-            level.append(note)
+                    # Make sure the intervals match
+                    if count(match.timings, lambda x: ranges == x) == 0:
+                        continue
 
+                    # Make sure we don't change directions abruptly
+                    first = match.notes[0][0]
+                    if last_note and \
+                        not first.direction in directions[last_note.direction]:
+                        continue
+
+                    options.append(match.notes)
+      
+            # Do we have options
+            if options:
+                choice = random.choice(options)
+                for c in range(len(choice)):
+                    for note in choice[c]:
+                        nxt.append(Note(
+                            note.type,
+                            self.adjusted_time(self.peaks[i+c].time),
+                            note.row, note.col,
+                            note.direction
+                        ))
+                i += len(choice)
+
+            if not nxt:
+                # Resort to randomness if we can't find a matching pattern.
+                row, col = random.randint(0, 2), random.randint(0, 3)
+                time = self.adjusted_time(peak.time)
+                note_type = random.choice([NoteType.blue, NoteType.red])
+                direction = CutDirection(random.randint(0, 7))
+
+                if i-1 >= 0:
+                    last_note = level[len(level)-1]
+                    direction = random.choice(
+                        directions[last_note.direction]
+                    )
+
+                print('hai')
+                nxt = [Note(note_type, time, row, col, direction)]
+                i += 1
+
+            level += nxt
+            last_note = level[len(level)-1]
+
+        print('\n'.join([str(n) for n in level]))
         return level
 
     def adjusted_time(self, time):
@@ -169,7 +215,7 @@ def peaks(audio, segments):
             continue
         
         # Sanity check for placing notes too close to each other.
-        if not delta >= 100:
+        if not delta >= 10:
             continue
 
         result.append(cur)
@@ -192,6 +238,28 @@ def all(arr, predicate):
         if not predicate(x):
             return False
     return True
+
+
+def in_range(value, range):
+    return range[0] <= value < range[1]
+
+
+def get_range(value):
+    value = value / 1000
+    time_ranges = {
+        # (100bpm, 200bpm)
+        (0.075, 0.15): 0.25,
+        (0.15, 0.30): 0.50,
+        (0.30, 0.60): 1.0
+    }
+    for r in time_ranges:
+        if in_range(value, r):
+            return time_ranges[r]
+    return -1
+
+
+def flatten(arr):
+    [item for sublist in arr for item in sublist]
 
 
 def count(arr, predicate):

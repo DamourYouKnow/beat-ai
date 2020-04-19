@@ -32,7 +32,6 @@ class Note:
         self.row, self.column = row, column
         self.direction = direction
         self.classified = False
-        self.raw_time = None
 
     def json(self):
         return {
@@ -42,6 +41,11 @@ class Note:
             '_type': int(self.type),
             '_cutDirection': int(self.direction)
         }
+
+    def __repr__(self):
+        s = f'[time={self.time}, type={int(self.type)}, '
+        s += f'pos=({self.row}, {self.column})]'
+        return s
 
 
 # [Easy, Medium, Medium, Hard, Hard]
@@ -105,72 +109,167 @@ directions = {
 }
 
 
-patterns = [
-    # Dance notes
-    [
+class PatternType(Enum):
+    dance = 0
+    cross = 1
+    drumroll = 2
+    roll_lr = 3
+    roll_rl = 4
+    tap_red = 5
+    tap_blue = 6
+    tap_red_half = 5
+    tap_blue_half = 6
+
+    def __int__(self):
+        return self.value
+
+
+class PNote:
+    def __init__(self, note_type, rows, cols, direction):
+        self.type = note_type
+        self.row = rows
+        self.col = cols
+        self.direction = direction
+
+
+class Pattern:
+    def __init__(self, timings, notes):
+        self.timings = timings
+        self.notes = notes
+
+
+patterns = {
+    PatternType.dance: Pattern(
+        [[0.0, 1.0], [0.0, 0.5]], 
         [
-            Note(NoteType.red, 0.0, 1, 0, CutDirection.down),
-            Note(NoteType.blue, 0.0, 1, 3, CutDirection.up)
-        ],
-        [
-            Note(NoteType.red, 1.0, 1, 0, CutDirection.up),
-            Note(NoteType.blue, 1.0, 1, 3, CutDirection.down)
+            [
+                PNote(NoteType.red, 1, 0, CutDirection.down),
+                PNote(NoteType.blue, 2, 2, CutDirection.up)
+            ],
+            [
+                PNote(NoteType.red, 2, 0, CutDirection.up),
+                PNote(NoteType.blue, 1, 2, CutDirection.down)
+            ]
         ]
-    ],
-    # Cross
-    [
+    ),
+    PatternType.cross: Pattern(
+        [[0.0, 1.0]],
         [
-            Note(NoteType.red, 0.0, 0, 3, CutDirection.right),
-            Note(NoteType.blue, 0.0, 1, 0, CutDirection.left)
-        ],
-        [
-            Note(NoteType.red, 1.0, 0, 0, CutDirection.left),
-            Note(NoteType.blue, 1.0, 1, 3, CutDirection.right)
+            [
+                PNote(NoteType.red, 1, 2, CutDirection.right),
+                PNote(NoteType.blue, 2, 0, CutDirection.left)
+            ],
+            [
+                PNote(NoteType.red, 1, 0, CutDirection.left),
+                PNote(NoteType.blue, 2, 2, CutDirection.right)
+            ]
         ]
-    ],
-    # Drum roll
-    [
+    ),
+    PatternType.drumroll: Pattern(
+        [[0.0, 0.25, 0.50, 0.75]],
         [
-            Note(NoteType.red, 0.0, 0, 1, CutDirection.down)
-        ],
-        [
-            Note(NoteType.blue, 0.25, 0, 2, CutDirection.none)
-        ],
-        [
-            Note(NoteType.red, 0.50, 0, 1, CutDirection.none)
-        ],
-        [
-            Note(NoteType.blue, 0.75, 0, 2, CutDirection.none)
+            [
+                PNote(NoteType.red, 1, 1, CutDirection.down)
+            ],
+            [
+                PNote(NoteType.blue, 1, 2, CutDirection.none)
+            ],
+            [
+                PNote(NoteType.red, 1, 1, CutDirection.none)
+            ],
+            [
+                PNote(NoteType.blue, 1, 2, CutDirection.none)
+            ]
         ]
-    ],
-    # Roller left to right
-    [
+    ),
+    PatternType.roll_lr: Pattern(
+        [[0.0, 0.25, 0.50, 0.75]],
         [
-            Note(NoteType.red, 0.0, 0, 0, CutDirection.down),
-        ],
-        [
-            Note(NoteType.blue, 0.25, 0, 1, CutDirection.up),
-        ],
-        [
-            Note(NoteType.red, 0.50, 0, 2, CutDirection.up),
-        ],
-        [
-            Note(NoteType.blue, 0.75, 0, 3, CutDirection.down),
+            [
+                PNote(NoteType.red, 1, 0, CutDirection.down),
+            ],
+            [
+                PNote(NoteType.blue, 1, 1, CutDirection.up),
+            ],
+            [
+                PNote(NoteType.red, 1, 2, CutDirection.up),
+            ],
+            [
+                PNote(NoteType.blue, 1, 3, CutDirection.down),
+            ]
         ]
-    ],
-    # Roller right to left
-    [
+    ),
+    PatternType.roll_rl: Pattern(
+        [[0.0, 0.25, 0.50, 0.75]],
         [
-            Note(NoteType.blue, 0.0, 0, 3, CutDirection.down),
-        ],
-        [
-            Note(NoteType.red, 0.25, 0, 2, CutDirection.up),
-        ],
-        [
-            Note(NoteType.blue, 0.50, 0, 1, CutDirection.up),
-        ],
-        [
-            Note(NoteType.red, 0.75, 0, 0, CutDirection.down),
+            [
+                PNote(NoteType.blue, 1, 3, CutDirection.down),
+            ],
+            [
+                PNote(NoteType.red, 1, 2, CutDirection.up),
+            ],
+            [
+                PNote(NoteType.blue, 1, 1, CutDirection.up),
+            ],
+            [
+                PNote(NoteType.red, 1, 0, CutDirection.down),
+            ]
         ]
-    ],
-]
+    ),
+    PatternType.tap_red: Pattern(
+        [[0.0, 1.0, 2.0, 3.0], [0.0, 0.5, 1.0, 1.5]],
+        [
+            [
+                PNote(NoteType.red, 1, 0, CutDirection.down),
+            ],
+            [
+                PNote(NoteType.red, 1, 0, CutDirection.down),
+            ],
+            [
+                PNote(NoteType.red, 1, 0, CutDirection.down),
+            ],
+            [
+                PNote(NoteType.red, 1, 0, CutDirection.down),
+            ]
+        ]
+    ),
+    PatternType.tap_blue: Pattern(
+        [[0.0, 1.0, 2.0, 3.0], [0.0, 0.5, 1.0, 1.5]],
+        [
+            [
+                PNote(NoteType.blue, 1, 3, CutDirection.down),
+            ],
+            [
+                PNote(NoteType.blue, 1, 3, CutDirection.down),
+            ],
+            [
+                PNote(NoteType.blue, 1, 3, CutDirection.down),
+            ],
+            [
+                PNote(NoteType.blue, 1, 3, CutDirection.down),
+            ]
+        ]
+    ),
+    PatternType.tap_red_half: Pattern(
+        [[0.0, 1.0], [0.0, 0.5]],
+        [
+            [
+                PNote(NoteType.red, 1, 0, CutDirection.down),
+            ],
+            [
+                PNote(NoteType.red, 1, 0, CutDirection.down),
+            ]
+        ]
+    ),
+    PatternType.tap_blue_half: Pattern(
+        [[0.0, 1.0], [0.0, 0.5]],
+        [
+            [
+                PNote(NoteType.blue, 1, 3, CutDirection.down),
+            ],
+            [
+                PNote(NoteType.blue, 1, 3, CutDirection.down),
+            ],
+        ]
+    )
+}
