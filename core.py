@@ -89,10 +89,13 @@ class Song:
 
             if not nxt:
                 # Resort to randomness if we can't find a matching pattern.
-                row, col = random.randint(0, 2), random.randint(0, 3)
+                row = random.randint(0, 2)
                 time = self.adjusted_time(peak.time)
                 note_type = random.choice([NoteType.blue, NoteType.red])
                 direction = CutDirection(random.randint(0, 7))
+                col = random.randint(0, 1)
+                if note_type == NoteType.blue:
+                    col = random.randint(2, 3)
 
                 if i-1 >= 0:
                     last_note = level[len(level)-1]
@@ -247,7 +250,7 @@ def get_range(value):
     time_ranges = {
         # (100bpm, 200bpm)
         (0.075, 0.15): 0.25,
-        (0.15, 0.30): 0.50,
+        (0.15, 0.30): 0.5,
         (0.30, 0.60): 1.0
     }
     for r in time_ranges:
