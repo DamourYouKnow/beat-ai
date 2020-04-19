@@ -100,14 +100,12 @@ class Song:
                         directions[last_note.direction]
                     )
 
-                print('hai')
                 nxt = [Note(note_type, time, row, col, direction)]
                 i += 1
 
             level += nxt
             last_note = level[len(level)-1]
 
-        print('\n'.join([str(n) for n in level]))
         return level
 
     def adjusted_time(self, time):
@@ -116,7 +114,7 @@ class Song:
 
     def export(self):
         outdir, songdir = './output', f'./output/{self.name}'
-        infopath, datapath = f'{songdir}/info.dat', f'{songdir}/AI.dat'
+        infopath, datapath = f'{songdir}/info.dat', f'{songdir}/Expert.dat'
         if not os.path.exists(outdir):
             os.mkdir(outdir)
         if os.path.exists(songdir):
@@ -157,9 +155,9 @@ class Song:
                     '_beatmapCharacteristicName': 'Standard',
                     '_difficultyBeatmaps': [
                         {
-                            '_difficulty': 'AI',
+                            '_difficulty': 'Expert',
                             '_difficultyRank': 7,
-                            '_beatmapFilename': 'AI.dat',
+                            '_beatmapFilename': 'Expert.dat',
                             '_noteJumpMovementSpeed': 12,
                             '_noteJumpStartBeatOffset': 0
                         }
